@@ -14,16 +14,35 @@ No test suite configured.
 
 ## Architecture
 
-EmitLess is a single-page Next.js 14 (App Router) carbon footprint calculator for commutes.
+EmitLess is a single-page Next.js 14 (App Router) carbon footprint calculator for commutes. It's a polished, YC-style MVP.
 
-**All logic lives in `app/page.tsx`** — there are no separate lib files or components yet.
+**All logic lives in `app/page.tsx`** — no separate lib files or components yet.
+
+### Page sections (top to bottom)
+
+1. **Sticky header** — logo, total points, streak badge
+2. **Hero** — tagline
+3. **Calculator + Results** (2-col grid on desktop)
+   - Left: input card (distance, transport mode selector, days/week, calculate button)
+   - Right: CO2 stats grid, score with progress bar, points + streak cards
+4. **Smart Tips + Leaderboard** (2-col grid)
+5. **Impact Visualization** — gradient banner with monthly CO2, trees, km equivalent
+6. **Rewards** — grid of redeemable rewards (unlocked based on total points)
+
+All sections below the calculator are hidden until `results` is non-null.
 
 ### Data flow
 
-1. User fills in distance (km), transport mode, days/week
-2. `calculate()` runs on button click — multiplies distance × emission factor × days
-3. Results (daily/weekly/monthly CO2 + score + points) stored in `useState`
-4. Results card, score badge, smart tips, and leaderboard all render conditionally when results is non-null
+1. User fills inputs → `calculate()` on button click
+2. `results` state set with: daily/weekly/monthly CO2, score, points
+3. `totalPoints = MOCK_CUMULATIVE (240) + results.points`
+4. Leaderboard: `MOCK_LEADERBOARD` + `{ name: "You", points: totalPoints }`, sorted, top 5
+
+### Key constants
+
+- `MOCK_CUMULATIVE = 240` — baseline points before today
+- `MOCK_STREAK = 3` — hardcoded streak days
+- `MOCK_LEADERBOARD` — 4 mock users
 
 ### Emission factors (kg CO2/km)
 
@@ -35,34 +54,35 @@ EmitLess is a single-page Next.js 14 (App Router) carbon footprint calculator fo
 | Bike  | 0      |
 | Walk  | 0      |
 
-### Score + points logic (based on daily CO2)
+### Score + points (based on daily CO2)
 
-| Daily CO2 | Level     | Color  | Points |
-|-----------|-----------|--------|--------|
-| < 2 kg    | Excellent | Green  | 100    |
-| 2–5 kg    | Moderate  | Yellow | 50     |
-| > 5 kg    | High      | Red    | 10     |
+| Daily CO2 | Level     | Color  | Points | Progress bar |
+|-----------|-----------|--------|--------|--------------|
+| < 2 kg    | Excellent | Green  | 100    | 15%          |
+| 2–5 kg    | Moderate  | Yellow | 50     | 52%          |
+| > 5 kg    | High      | Red    | 10     | 88%          |
 
-### Smart tips logic (`getTips`)
+### Smart tips (`getTips`)
 
-- mode = car → "Try metro or bus"
-- daily > 5 → "Reduce commute days or carpool"
-- otherwise → "Keep up the good work"
-- Returns max 2 tips, shown as gray cards
+- mode = car → suggest metro/bus
+- daily > 5 → suggest WFH/carpool
+- else → positive reinforcement
+- Always returns exactly 2 tips
 
-### Leaderboard
+### Rewards
 
-- 4 hardcoded mock users in `MOCK_USERS`
-- After calculate, "You" is injected with the computed points
-- Combined array sorted by points descending, top 5 shown
-- "You" row highlighted with green background + border
+- 4 hardcoded rewards in `REWARDS`
+- Redeem button enabled when `totalPoints >= reward.points`
+- No backend — button click does nothing (UI only)
 
 ### Styling
 
-- Tailwind CSS only, no extra UI library
-- `bg-gray-50` page background, white card with `rounded-2xl shadow-md`
-- Green accent: `bg-green-500` button
-- Score badge uses conditional Tailwind classes from `SCORE_CONFIG` map
+- Tailwind only, no UI library
+- Background: `bg-gradient-to-br from-emerald-50 via-white to-teal-50`
+- Cards: `bg-white rounded-2xl border border-gray-100 shadow-sm`
+- Primary button: gradient `from-emerald-500 to-teal-500`
+- Transport mode: button grid (5 cols) with active emerald highlight
+- Impact section: full-width emerald-to-teal gradient banner
 
 ## Git / GitHub
 
