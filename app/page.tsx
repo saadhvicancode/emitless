@@ -44,11 +44,18 @@ function getScore(dailyCO2: number): ScoreLevel {
   return "high";
 }
 
+function getPoints(dailyCO2: number): number {
+  if (dailyCO2 < 2) return 100;
+  if (dailyCO2 <= 5) return 50;
+  return 10;
+}
+
 interface Results {
   daily: number;
   weekly: number;
   monthly: number;
   score: ScoreLevel;
+  points: number;
 }
 
 export default function HomePage() {
@@ -72,6 +79,7 @@ export default function HomePage() {
       weekly: Math.round(weekly * 100) / 100,
       monthly: Math.round(monthly * 100) / 100,
       score: getScore(daily),
+      points: getPoints(daily),
     });
   }
 
@@ -173,6 +181,13 @@ export default function HomePage() {
                     {results.monthly} kg CO₂
                   </span>
                 </div>
+              </div>
+
+              {/* Points */}
+              <div className="bg-green-500 rounded-xl p-4 text-center">
+                <p className="text-white font-bold text-lg">
+                  You earned {results.points} points today 🎉
+                </p>
               </div>
 
               {/* Score badge */}

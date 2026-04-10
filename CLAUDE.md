@@ -35,13 +35,13 @@ EmitLess is a single-page Next.js 14 (App Router) carbon footprint calculator fo
 | Bike  | 0      |
 | Walk  | 0      |
 
-### Score logic (based on daily CO2)
+### Score + points logic (based on daily CO2)
 
-| Daily CO2   | Level    | Color  |
-|-------------|----------|--------|
-| < 2 kg      | Excellent | Green |
-| 2–5 kg      | Moderate  | Yellow |
-| > 5 kg      | High      | Red   |
+| Daily CO2 | Level     | Color  | Points |
+|-----------|-----------|--------|--------|
+| < 2 kg    | Excellent | Green  | 100    |
+| 2–5 kg    | Moderate  | Yellow | 50     |
+| > 5 kg    | High      | Red    | 10     |
 
 ### Styling
 
