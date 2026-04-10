@@ -38,6 +38,13 @@ const SCORE_CONFIG: Record<
   },
 };
 
+const MOCK_USERS = [
+  { name: "Aisha", points: 100 },
+  { name: "Marcus", points: 95 },
+  { name: "Priya", points: 80 },
+  { name: "James", points: 50 },
+];
+
 function getScore(dailyCO2: number): ScoreLevel {
   if (dailyCO2 < 2) return "excellent";
   if (dailyCO2 <= 5) return "moderate";
@@ -48,6 +55,14 @@ function getPoints(dailyCO2: number): number {
   if (dailyCO2 < 2) return 100;
   if (dailyCO2 <= 5) return 50;
   return 10;
+}
+
+function getTips(mode: TransportMode, daily: number): string[] {
+  const tips: string[] = [];
+  if (mode === "car") tips.push("🚇 Try metro or bus to reduce emissions");
+  if (daily > 5) tips.push("📅 Reduce commute days or carpool to cut your footprint");
+  if (tips.length === 0) tips.push("🌱 Keep up the good work — your commute is already low-impact!");
+  return tips.slice(0, 2);
 }
 
 interface Results {
@@ -83,10 +98,16 @@ export default function HomePage() {
     });
   }
 
+  const leaderboard = results
+    ? [...MOCK_USERS, { name: "You", points: results.points }]
+        .sort((a, b) => b.points - a.points)
+        .slice(0, 5)
+    : null;
+
   return (
     <main className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        {/* Card */}
+      <div className="w-full max-w-md space-y-4">
+        {/* Main Card */}
         <div className="bg-white rounded-2xl shadow-md p-8 space-y-6">
           {/* Title */}
           <div className="text-center">
@@ -98,7 +119,6 @@ export default function HomePage() {
 
           {/* Inputs */}
           <div className="space-y-4">
-            {/* Distance */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Distance (km)
@@ -113,7 +133,6 @@ export default function HomePage() {
               />
             </div>
 
-            {/* Transport mode */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Transport mode
@@ -131,7 +150,6 @@ export default function HomePage() {
               </select>
             </div>
 
-            {/* Days per week */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Days per week
@@ -165,21 +183,15 @@ export default function HomePage() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">Daily</span>
-                  <span className="font-semibold text-gray-900">
-                    {results.daily} kg CO₂
-                  </span>
+                  <span className="font-semibold text-gray-900">{results.daily} kg CO₂</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">Weekly</span>
-                  <span className="font-semibold text-gray-900">
-                    {results.weekly} kg CO₂
-                  </span>
+                  <span className="font-semibold text-gray-900">{results.weekly} kg CO₂</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">Monthly</span>
-                  <span className="font-semibold text-gray-900">
-                    {results.monthly} kg CO₂
-                  </span>
+                  <span className="font-semibold text-gray-900">{results.monthly} kg CO₂</span>
                 </div>
               </div>
 
@@ -195,12 +207,9 @@ export default function HomePage() {
                 const cfg = SCORE_CONFIG[results.score];
                 return (
                   <div className={`border rounded-xl p-4 ${cfg.badge}`}>
-                    <div className="flex items-center justify-between">
-                      <span className={`text-sm font-semibold ${cfg.text}`}>
-                        Your carbon level:{" "}
-                        <span className="font-bold">{cfg.label}</span>
-                      </span>
-                    </div>
+                    <span className={`text-sm font-semibold ${cfg.text}`}>
+                      Your carbon level: <span className="font-bold">{cfg.label}</span>
+                    </span>
                     <p className={`mt-1 text-sm ${cfg.text}`}>{cfg.message}</p>
                   </div>
                 );
@@ -208,6 +217,58 @@ export default function HomePage() {
             </div>
           )}
         </div>
+
+        {/* Smart Tips */}
+        {results && (
+          <div className="bg-white rounded-2xl shadow-md p-6 space-y-3">
+            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+              💡 Smart Tips
+            </h2>
+            <div className="space-y-2">
+              {getTips(mode, results.daily).map((tip, i) => (
+                <div key={i} className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm text-gray-700">
+                  {tip}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Leaderboard */}
+        {leaderboard && (
+          <div className="bg-white rounded-2xl shadow-md p-6 space-y-3">
+            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+              🏆 Leaderboard
+            </h2>
+            <div className="space-y-2">
+              {leaderboard.map((entry, i) => {
+                const isYou = entry.name === "You";
+                return (
+                  <div
+                    key={entry.name}
+                    className={`flex items-center justify-between rounded-xl px-4 py-3 ${
+                      isYou
+                        ? "bg-green-50 border border-green-200"
+                        : "bg-gray-50 border border-gray-100"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={`text-sm font-bold w-5 ${isYou ? "text-green-600" : "text-gray-400"}`}>
+                        {i + 1}
+                      </span>
+                      <span className={`text-sm font-medium ${isYou ? "text-green-700" : "text-gray-700"}`}>
+                        {entry.name} {isYou && "👤"}
+                      </span>
+                    </div>
+                    <span className={`text-sm font-bold ${isYou ? "text-green-600" : "text-gray-500"}`}>
+                      {entry.points} pts
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

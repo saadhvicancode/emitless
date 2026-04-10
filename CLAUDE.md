@@ -22,8 +22,8 @@ EmitLess is a single-page Next.js 14 (App Router) carbon footprint calculator fo
 
 1. User fills in distance (km), transport mode, days/week
 2. `calculate()` runs on button click — multiplies distance × emission factor × days
-3. Results (daily/weekly/monthly CO2 + score) stored in `useState`
-4. Results card + score badge render conditionally when results is non-null
+3. Results (daily/weekly/monthly CO2 + score + points) stored in `useState`
+4. Results card, score badge, smart tips, and leaderboard all render conditionally when results is non-null
 
 ### Emission factors (kg CO2/km)
 
@@ -42,6 +42,20 @@ EmitLess is a single-page Next.js 14 (App Router) carbon footprint calculator fo
 | < 2 kg    | Excellent | Green  | 100    |
 | 2–5 kg    | Moderate  | Yellow | 50     |
 | > 5 kg    | High      | Red    | 10     |
+
+### Smart tips logic (`getTips`)
+
+- mode = car → "Try metro or bus"
+- daily > 5 → "Reduce commute days or carpool"
+- otherwise → "Keep up the good work"
+- Returns max 2 tips, shown as gray cards
+
+### Leaderboard
+
+- 4 hardcoded mock users in `MOCK_USERS`
+- After calculate, "You" is injected with the computed points
+- Combined array sorted by points descending, top 5 shown
+- "You" row highlighted with green background + border
 
 ### Styling
 
